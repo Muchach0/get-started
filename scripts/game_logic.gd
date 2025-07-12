@@ -1,0 +1,239 @@
+extends Node2D
+
+@onready var game_over_screen: Control = $CanvasLayer/GameOverScreen
+@onready var level_label: Control = $CanvasLayer/LevelLabel
+@onready var server_label: Control = $CanvasLayer/IsServerLabel
+
+@onready var star: Area2D = $Star
+
+# @onready var player: Area2D = $PlayerShip
+# @onready var init_player_position: Vector2 = player.position
+
+@onready var bullets: Node2D = $Bullets
+@onready var init_bullet_count: int = 0
+const INCREMENT_BULLET_COUNT = 50
+var current_level := 1
+
+
+
+# Audio part
+@onready var audio_explosion: AudioStreamPlayer = $AudioManager/ExplosionAudioStreamPlayer
+@onready var audio_win: AudioStreamPlayer = $AudioManager/WinAudioStreamPlayer
+
+var players: Dictionary = {} # This will hold player data for synchronization
+
+
+
+func _ready() -> void:
+    # Connect signals to the event bus
+    EventBus.connect("player_hit", _on_player_hit)
+    EventBus.connect("star_touched", send_star_touched_on_all_peers)
+    EventBus.connect("add_player", add_player)
+    EventBus.connect("remove_player", remove_player)
+    EventBus.connect("set_player_node_name_and_init_position", set_player_node_name_and_init_position)
+
+    if multiplayer.is_server():
+        server_label.visible = true
+    # EventBus.connect("player_respawned", self, "_on_player_respawned")
+
+
+
+func add_player(player_id, player_info) -> void:
+    if !multiplayer.is_server():
+        return
+
+    # if player_id != 1:
+    player_info["reach_star"] = false
+    players[player_id] = player_info
+    print("game_logic.gd - add_player() - Players data: %s" % str(players))
+
+func set_player_node_name_and_init_position(player_id, player_node_name, init_position) -> void:
+    if !multiplayer.is_server():
+        return
+    if player_id in players:
+        players[player_id]["player_node_name"] = player_node_name  # Store the player node name
+        players[player_id]["init_position"] = init_position  # Store the initial position of the player
+        print("game_logic.gd - set_player_node_name() - Player %d node name set to %s" % [player_id, player_node_name])
+    else:
+        print("game_logic.gd - set_player_node_name() - Player ID %d not found in players dictionary." % player_id)
+
+# Called on signal _on_player_disconnected
+func delete_player_node_on_server(player_id) -> void:
+    if !multiplayer.is_server():
+        return
+    if player_id in players:
+        var player_node_name = players[player_id].get("player_node_name")
+        if player_node_name:
+            var player_node = get_node_or_null(NodePath(player_node_name))
+            if player_node:
+                player_node.queue_free()  # Free the player node if it exists
+                print("game_logic.gd - delete_player_on_server() - Player node %s removed." % player_node_name)
+            else:
+                print("game_logic.gd - delete_player_on_server() - Player node %s not found." % player_node_name)
+        else:
+            print("game_logic.gd - delete_player_on_server() - Player node name not found for ID %d." % player_id)
+    else:
+        print("game_logic.gd - delete_player_on_server() - Player ID %d not found in players dictionary." % player_id)
+
+# Called on signal _on_player_disconnected
+func remove_player(player_id) -> void:
+    if !multiplayer.is_server():
+        return
+    delete_player_node_on_server(player_id)  # Call the function to delete the player on the server
+    if player_id in players:
+        players.erase(player_id)  # Remove the player from the players dictionary
+    if all_players_reached_star(): # Checking if the game should finish
+        print("All players reached the star, finishing the game.")
+        finish_game.rpc(true) # Call finish_game with is_win set to true
+
+@rpc("any_peer", "call_local", "reliable")
+func player_was_hit(player_name, number_of_life: int) -> void:
+    audio_explosion.play()
+    if multiplayer.is_server():
+        players[multiplayer.get_remote_sender_id()]["number_of_life"] = number_of_life
+        if number_of_life <= 0:
+            print("game_logic - Player %s hit and has no lives left, finishing game." % name)
+            hide_player_from_server_to_all_peers.rpc(player_name)  # Hide the player from all peers
+            # get_node(NodePath(player_name)).queue_free()
+            # When a player is dead, we call finish_game with is_win set to false to all the players
+            finish_game.rpc(false)  # Call finish_game with is_win set to false
+        else:
+            print("game_logic - Player %s hit! Remaining lives: %d" % [name, number_of_life])
+
+# Called by the authoritative player when a player is hit
+func _on_player_hit(player_name, number_of_life: int) -> void:
+    print("game_logic - Player hit! Remaining lives: %d" % number_of_life)
+    # Handle player hit logic here, e.g., update UI or play sound
+    player_was_hit.rpc(player_name, number_of_life)
+
+
+
+# The button is restart is pressed by the player (local)
+func _on_button_restart_pressed() -> void:
+    print("game_logic - Restart button pressed")
+    restart_game.rpc()
+    # EventBus.emit_signal("player_respawned")
+    # player.visible = true
+    
+
+    # Freeing the bullets and re-instantiate it
+    # bullets.queue_free()
+
+    # # Spawning a new player
+    # var player = preload("res://prefab/player_ship.tscn").instantiate()  # Create an instance of the food scene
+    # # player.position = init_player_position
+    # add_child.call_deferred(player)
+
+    # Spawning the bullets
+    # bullets = preload("res://prefab/bullets.tscn").instantiate()  # Create an instance of the bullets script
+    # bullets.position = Vector2.ZERO
+    # bullets.init_bullet_count = init_bullet_count
+    # add_child.call_deferred(bullets)
+
+@rpc("any_peer", "call_local", "reliable")
+func restart_game() -> void:
+    print("Game restarted.")
+    # Handle game restart logic here, e.g., reset player positions, scores, etc.
+    # Reset players' reach_star status
+    for peer_id in players.keys():
+        players[peer_id]["reach_star"] = false
+
+    # Reset the star visibility
+    star.visible = true
+
+    # Reset the game over screen
+    game_over_screen.visible = false
+
+    # Reset the level label
+    level_label.text = "Level: " + str(current_level) + " - Bullets: " + str(init_bullet_count)
+
+    if multiplayer.is_server():
+        for player_id in players.keys():
+            # delete_player_node_on_server(player_id) # Delete the player node on the server if it still exists
+            respawn_player.rpc(player_id, players[player_id], players[player_id]["init_position"])  # Call respawn_player to respawn the player
+            # EventBus.emit_signal("respawn_player", player_id, players[player_id], players[player_id]["init_position"]) # Emit a signal to notify to respawn the player
+
+        EventBus.emit_signal("bullets_init_and_start", init_bullet_count) # Emit a signal to spawn bullets
+        
+
+
+@rpc("any_peer", "call_local", "reliable")
+func finish_game(is_win:= true) -> void:
+    print("Game finished.")
+    # Handle game finish logic here, e.g., show a win screen or play a sound
+    if is_win:
+        # Play win sound
+        audio_win.play()
+        star.visible = false
+        game_over_screen.get_node("Control/Label").text = "You Win!"
+        game_over_screen.get_node("Control2/Button").text = "Next Level"
+        init_bullet_count += INCREMENT_BULLET_COUNT
+        current_level += 1
+    else :
+        game_over_screen.get_node("Control/Label").text = "Game Over!"
+        game_over_screen.get_node("Control2/Button").text = "Restart"
+    game_over_screen.visible = true
+
+    # Flush all the bullets currently on the screen
+    bullets._exit_tree()
+
+
+func all_players_reached_star() -> bool:
+    # Check if all players have reached the star
+    for peer_id in players.keys():
+        if not players[peer_id].get("reach_star", false):
+            return false
+    return true
+
+
+@rpc("any_peer", "call_local", "reliable")
+func star_touched(player_name) -> void: # This function is called when a star is touched by any peer
+    var peer_id = multiplayer.get_remote_sender_id()
+    print(str(multiplayer.get_unique_id()) + " - game_logic.gd - star_touched() - Star touched by peer: %s" % peer_id)
+    # Get the player node from the peer ID
+    
+
+    # Play the star touched sound when someone touches the star
+    audio_win.play()
+
+    
+    # print("Player node: ", player)
+    if multiplayer.is_server(): # only the server should delete the player
+        players[peer_id]["reach_star"] = true # Update the player's reach_star status
+        # get_node(NodePath(player_name)).queue_free() # maybe not the best to queue_free the player, but it works for now - throw some errors.
+        hide_player_from_server_to_all_peers.rpc(player_name) # Hide the player from all peers
+        if all_players_reached_star():
+            print("All players reached the star, finishing the game.")
+            finish_game.rpc(true) # Call finish_game with is_win set to true
+
+func send_star_touched_on_all_peers(player_name) -> void:
+    print("game_logic.gd - send_star_touched_on_all_peers() - Player touched the star: %s" % player_name)
+    star_touched.rpc(player_name)
+    # Handle star touched logic here, e.g., increase score or play a sound
+
+
+@rpc("any_peer", "call_local", "reliable")
+func hide_player_from_server_to_all_peers(player_name) -> void:
+    print("game_logic.gd - hide_player_from_server_to_all_peers() - Hiding player: %s" % player_name)
+    var player = get_node_or_null(NodePath(player_name))
+    if player:
+        player.hide_player()  # Call the hide_player function on the player node
+        # Optionally, you can also queue_free the player node if you want to remove it
+    # player.queue_free()
+
+# @rpc("any_peer", "call_local", "reliable")
+
+
+@rpc("any_peer", "call_local", "reliable")
+func respawn_player(player_id, player_info, init_position) -> void:
+    print("game_logic.gd - respawn_player() - Respawning player %d at position %s" % [player_id, str(init_position)])
+    var player_node_name = player_info.get("player_node_name")
+    if player_node_name:
+        var player_node = get_node_or_null(NodePath(player_node_name))
+        if player_node:
+            player_node.reset_player(init_position)  # Call the reset_player function on the player node
+            print("game_logic.gd - respawn_player() - Player %d respawned at position %s" % [player_id, str(init_position)])
+        else:
+            print("game_logic.gd - respawn_player() - Player node %s not found." % player_node_name)
+    else:
+        print("game_logic.gd - respawn_player() - Player node name not found for ID %d." % player_id)
