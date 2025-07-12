@@ -21,8 +21,8 @@ EventBus="*res://scripts/EventBus.gd"
 
 [display]
 
-window/size/viewport_width=704
-window/size/viewport_height=1280
+window/size/viewport_width=1600
+window/size/viewport_height=900
 window/stretch/mode="viewport"
 
 [input]
