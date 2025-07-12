@@ -40,7 +40,7 @@ func server_init_and_start(init_bullet_count) -> void:
     
     for bullet in init_bullet_count:
         bullets_rand_data.append({
-            "position": Vector2(randf_range(0, get_viewport_rect().size.x), randf_range(0, get_viewport_rect().size.y) - get_viewport_rect().size.y),
+            "position": Vector2(randf_range(0, get_viewport_rect().size.x), randf_range(0, get_viewport_rect().size.y)),
             "speed": randf_range(SPEED_MIN, SPEED_MAX)
         })
     
