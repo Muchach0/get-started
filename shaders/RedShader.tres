@@ -4,4 +4,4 @@
 
 [resource]
 shader = ExtResource("1_rlwwq")
-shader_parameter/enable_effect = false
+shader_parameter/enable_effect = true

@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://c5ymybfjm8kfm"]
+[gd_scene load_steps=20 format=3 uid="uid://c5ymybfjm8kfm"]
 
 [ext_resource type="Script" uid="uid://drujhi3kyvi2u" path="res://scripts/game_logic.gd" id="1_p0w5i"]
 [ext_resource type="Script" uid="uid://cp1qex37r1rrc" path="res://scripts/ui.gd" id="2_kobp4"]
@@ -9,9 +9,11 @@
 [ext_resource type="Texture2D" uid="uid://ce3i324ntjxh3" path="res://assets/star_2.png" id="7_fqsy6"]
 [ext_resource type="AudioStream" uid="uid://cv1200f5e67ib" path="res://assets/sounds/explosion.wav" id="8_4ixbf"]
 [ext_resource type="AudioStream" uid="uid://3i1neqbgutxm" path="res://assets/sounds/pickupCoin.wav" id="9_ltkbo"]
+[ext_resource type="AudioStream" uid="uid://cejnvkaruohkw" path="res://assets/sounds/bonusPickUp.wav" id="10_l3qxk"]
 [ext_resource type="Script" uid="uid://d0ms3k0nv2mp5" path="res://scripts/NetworkManager.gd" id="10_pjeai"]
 [ext_resource type="PackedScene" uid="uid://r4el6umoyi8v" path="res://prefab/bullets.tscn" id="11_vhqmy"]
 [ext_resource type="Texture2D" uid="uid://bkby2e0hkghxd" path="res://assets/placeholder.svg" id="12_w86v4"]
+[ext_resource type="Texture2D" uid="uid://2vbmwrfbswhb" path="res://assets/bonus.png" id="14_l3qxk"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_w2sp8"]
 radius = 40.9132
@@ -21,6 +23,14 @@ size = Vector2(1598, 159)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_p0w5i"]
 radius = 20.6155
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_4bnm5"]
+radius = 13.0
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_w86v4"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
 
 [node name="Shower" type="Node2D"]
 script = ExtResource("1_p0w5i")
@@ -112,6 +122,15 @@ text = "Player connected: 0 "
 horizontal_alignment = 2
 vertical_alignment = 1
 
+[node name="BonusLabel" type="Label" parent="CanvasLayer"]
+offset_right = 705.0
+offset_bottom = 87.0
+rotation = -0.00440829
+size_flags_horizontal = 4
+theme = ExtResource("4_l3qxk")
+text = " Bonus: 0 "
+vertical_alignment = 1
+
 [node name="TestRoomLabel" type="Label" parent="CanvasLayer"]
 anchors_preset = 1
 anchor_left = 1.0
@@ -190,6 +209,9 @@ stream = ExtResource("8_4ixbf")
 [node name="WinAudioStreamPlayer" type="AudioStreamPlayer" parent="AudioManager"]
 stream = ExtResource("9_ltkbo")
 
+[node name="BonusPickUpAudioStreamPlayer" type="AudioStreamPlayer" parent="AudioManager"]
+stream = ExtResource("10_l3qxk")
+
 [node name="Bullets" parent="." instance=ExtResource("11_vhqmy")]
 
 [node name="SpawnPoints" type="Node2D" parent="."]
@@ -258,6 +280,20 @@ shape = SubResource("CircleShape2D_p0w5i")
 [node name="Sprite2D" type="Sprite2D" parent="MyBullet"]
 scale = Vector2(0.24, 0.24)
 texture = ExtResource("12_w86v4")
+
+[node name="Bonus" type="Area2D" parent="." groups=["bonus"]]
+position = Vector2(1150, 663)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bonus"]
+shape = SubResource("CircleShape2D_4bnm5")
+
+[node name="BonusSprite" type="Sprite2D" parent="Bonus"]
+material = ExtResource("6_jcauo")
+scale = Vector2(0.2, 0.2)
+texture = ExtResource("14_l3qxk")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="Bonus"]
+replication_config = SubResource("SceneReplicationConfig_w86v4")
 
 [node name="NetworkManager" type="Node" parent="."]
 script = ExtResource("10_pjeai")

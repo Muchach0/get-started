@@ -27,4 +27,4 @@ void fragment() {
 
 [resource]
 shader = SubResource("1")
-shader_parameter/use_alt_color = false
+shader_parameter/use_alt_color = true

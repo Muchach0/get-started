@@ -117,6 +117,11 @@ func _on_area_entered(area: Area2D) -> void:
         if multiplayer == null or is_multiplayer_authority(): # Only the authority should emit the signal.
             print("The safezone is entered by the player")
             is_invincible = true
+    if "bonus" in area.get_groups():
+        if multiplayer == null or is_multiplayer_authority(): # Only the authority should emit the signal.
+            print("The bonus is touched by the player")
+            EventBus.emit_signal("bonus_touched", area.name)  # Emit a signal to notify the game logic that the player touched a bonus
+            print("Bonus touched: ", area.name)
     pass # Replace with function body.
 
 func _on_area_exited(area: Area2D) -> void:

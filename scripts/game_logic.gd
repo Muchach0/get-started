@@ -18,6 +18,8 @@ var current_level := 1
 # We hide the player connecting in case a round is already running, necessary as the bullets are instantiated locally on round start.
 var is_a_game_with_bullets_currently_running: bool = false 
 
+@onready var bonus_node: Area2D = $Bonus
+var bonus_number: int = 0 # This will hold the number of bonuses collected by the player
 
 # Audio part
 @onready var audio_explosion: AudioStreamPlayer = $AudioManager/ExplosionAudioStreamPlayer
@@ -34,6 +36,7 @@ func _ready() -> void:
     EventBus.connect("add_player", add_player)
     EventBus.connect("remove_player", remove_player)
     EventBus.connect("set_player_node_name_and_init_position", set_player_node_name_and_init_position)
+    EventBus.connect("bonus_touched", on_bonus_touched_by_player)
 
     if multiplayer.is_server():
         server_label.visible = true
@@ -168,6 +171,7 @@ func restart_game() -> void:
 
     if multiplayer.is_server():
         is_a_game_with_bullets_currently_running = true  # Starting a level with bullets, so setting the flag to true
+        reset_bonus() # Move the bonus to a random position in the viewport and put back bonus count to 0
         
         for player_id in players.keys():
             # delete_player_node_on_server(player_id) # Delete the player node on the server if it still exists
@@ -277,3 +281,49 @@ func reset_game_state_on_server() -> void: # Called when the game is reset, e.g.
     players.clear()  # Clear the players dictionary
     # Reset the star visibility
     star.visible = true
+
+
+
+######################## BONUS SECTION ########################
+# Called from the player.gd script when a bonus is touched by the player - local from player
+func on_bonus_touched_by_player(bonus_node_name: String) -> void:
+    print("game_logic.gd - on_bonus_touched() - Bonus touched: %s" % bonus_node_name)
+    server_handles_bonus_touched_by_player.rpc(bonus_node_name)  # Call the server function to handle the bonus touch
+
+@rpc("any_peer", "call_local", "reliable")
+func server_handles_bonus_touched_by_player(bonus_node_name: String) -> void: # The server handles the bonus touch (make it disapear + store the bonus count)
+    if not multiplayer.is_server():
+        return  # Only the server should handle the bonus touch
+    print("game_logic.gd - handles_bonus_touched_on_all_peers() - Bonus touched: %s" % bonus_node_name)
+    var bonus_node = get_node_or_null(NodePath(bonus_node_name))
+    if not bonus_node:
+        print("game_logic.gd - handles_bonus_touched_on_all_peers() - Bonus node %s not found." % bonus_node_name)
+        return
+    bonus_node.position = Vector2(-1000, -1000)  # Move the bonus node out of the viewport to make it disappear
+    bonus_number += 1  # Increment the bonus count
+    sync_bonus_count_on_peers.rpc(bonus_number, true)  # Call the function to refresh the bonus count on all peers
+
+@rpc("any_peer", "call_local", "reliable")
+func sync_bonus_count_on_peers(bonus_number_from_server: int, is_bonus_picked_up: bool) -> void: # Function called from server to all peers to synchronize the bonus count
+    print("game_logic.gd - sync_bonus_count_on_peers() - Sync bonus count on peers: %d" % bonus_number_from_server)
+    bonus_number = bonus_number_from_server
+    EventBus.emit_signal("bonus_touched_ui", bonus_number, is_bonus_picked_up) # Emit a signal to notify the UI that a bonus was touched - run on all peers except the server
+
+func reset_bonus() -> void: # This function is called to reset the bonus count and move the bonus node to a random position in the viewport
+    print("game_logic.gd - reset_bonus() - Resetting bonus count and moving bonus node")
+    if not multiplayer.is_server():
+        return  # Only the server should move the bonus
+    bonus_number = 0  # Reset the bonus count
+    sync_bonus_count_on_peers.rpc(bonus_number, false)  # Call the function to refresh the bonus count on all peers
+    server_move_bonus_in_random_viewport_position()  # Move the bonus to a random position in the viewport
+
+func server_move_bonus_in_random_viewport_position() -> void: # This function is called to move the bonus to a random position in the viewport
+    if not multiplayer.is_server(): # Check if the multiplayer is server and if the bonus node exists
+        return  # Only the server should move the bonus
+    if not bonus_node:
+        print("game_logic.gd - move_bonus_in_random_viewport_position() - Bonus node not found.")
+        return
+    var viewport_size = get_viewport_rect().size
+    var random_position = Vector2(randf_range(0, viewport_size.x), randf_range(viewport_size.y / 2 - 80, viewport_size.y - 80)) # place the bonus in the lower half of the viewport
+    bonus_node.position = random_position  # Move the bonus to a random position in the viewport
+    print("game_logic.gd - move_bonus_in_random_viewport_position() - Bonus moved to: %s" % str(random_position))

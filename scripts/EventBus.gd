@@ -13,3 +13,8 @@ signal bullets_init_and_start # Signal sent on server to spawn bullets (the serv
 signal start_level # Signal to update the UI with the current level and number of bullets (sent from server)
 
 signal is_server_running_a_busy_round # Signal to indicate if a game is currently running - UI will display the label accordingly
+
+
+# Signal linked to bonus
+signal bonus_touched # Signal to notify the game logic that a player touched a bonus
+signal bonus_touched_ui # Signal to notify the UI that a player touched a bonus

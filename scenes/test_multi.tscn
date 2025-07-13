@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://btfwk1j12fmv3"]
+[gd_scene load_steps=18 format=3 uid="uid://btfwk1j12fmv3"]
 
 [ext_resource type="Script" uid="uid://drujhi3kyvi2u" path="res://scripts/game_logic.gd" id="1_3wjhk"]
 [ext_resource type="Script" uid="uid://cp1qex37r1rrc" path="res://scripts/ui.gd" id="2_ftf1t"]
@@ -10,13 +10,23 @@
 [ext_resource type="AudioStream" uid="uid://cv1200f5e67ib" path="res://assets/sounds/explosion.wav" id="9_tyrbv"]
 [ext_resource type="Script" uid="uid://d0ms3k0nv2mp5" path="res://scripts/NetworkManager.gd" id="10_3wjhk"]
 [ext_resource type="PackedScene" uid="uid://r4el6umoyi8v" path="res://prefab/bullets.tscn" id="10_ftf1t"]
+[ext_resource type="AudioStream" uid="uid://cejnvkaruohkw" path="res://assets/sounds/bonusPickUp.wav" id="10_plucx"]
 [ext_resource type="AudioStream" uid="uid://3i1neqbgutxm" path="res://assets/sounds/pickupCoin.wav" id="10_wl8ak"]
+[ext_resource type="Texture2D" uid="uid://2vbmwrfbswhb" path="res://assets/bonus.png" id="12_68i5b"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_w2sp8"]
 radius = 40.9132
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_3wjhk"]
 size = Vector2(1598, 159)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_plucx"]
+radius = 13.0
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_r6qr8"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
 
 [node name="Shower" type="Node2D"]
 script = ExtResource("1_3wjhk")
@@ -146,6 +156,15 @@ text = "A round is running, wait for the end to get started again ..."
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="BonusLabel" type="Label" parent="CanvasLayer"]
+offset_right = 705.0
+offset_bottom = 87.0
+rotation = -0.00440829
+size_flags_horizontal = 4
+theme = ExtResource("5_r6qr8")
+text = " Bonus: 0 "
+vertical_alignment = 1
+
 [node name="Space_background" type="Sprite2D" parent="."]
 z_index = -1
 position = Vector2(799.5, 450.5)
@@ -170,6 +189,9 @@ stream = ExtResource("9_tyrbv")
 
 [node name="WinAudioStreamPlayer" type="AudioStreamPlayer" parent="AudioManager"]
 stream = ExtResource("10_wl8ak")
+
+[node name="BonusPickUpAudioStreamPlayer" type="AudioStreamPlayer" parent="AudioManager"]
+stream = ExtResource("10_plucx")
 
 [node name="NetworkManager" type="Node" parent="."]
 script = ExtResource("10_3wjhk")
@@ -234,5 +256,19 @@ position = Vector2(3, -23)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="SafeZone/AreaSafeZone"]
 position = Vector2(795, 162.5)
 shape = SubResource("RectangleShape2D_3wjhk")
+
+[node name="Bonus" type="Area2D" parent="." groups=["bonus"]]
+position = Vector2(805, 488)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bonus"]
+shape = SubResource("CircleShape2D_plucx")
+
+[node name="BonusSprite" type="Sprite2D" parent="Bonus"]
+material = ExtResource("7_m7xea")
+scale = Vector2(0.2, 0.2)
+texture = ExtResource("12_68i5b")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="Bonus"]
+replication_config = SubResource("SceneReplicationConfig_r6qr8")
 
 [connection signal="pressed" from="CanvasLayer/GameOverScreen/Control2/Button" to="." method="_on_button_restart_pressed"]

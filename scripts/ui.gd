@@ -3,6 +3,10 @@ extends CanvasLayer
 @onready var network_label: Label = $NetworkLabel
 @onready var level_label: Label = $LevelLabel
 @onready var is_a_game_running_label: Label = $IsAGameRunningLabel
+@onready var bonus_label: Label = $BonusLabel
+
+# Audio part
+@onready var audio_bonus_picked_up: AudioStreamPlayer = $"../AudioManager/BonusPickUpAudioStreamPlayer"
 
 var number_of_players: int = 0
 
@@ -11,6 +15,7 @@ func _ready() -> void:
     EventBus.connect("remove_player", on_remove_player)
     EventBus.connect("start_level", on_start_level)
     EventBus.connect("is_server_running_a_busy_round", on_joining_server_running_a_busy_round)
+    EventBus.connect("bonus_touched_ui", on_bonus_touched_ui)
 
 
 func on_player_added(_player_id, _player_info) -> void:
@@ -31,3 +36,9 @@ func on_joining_server_running_a_busy_round(should_display_label: bool) -> void:
         is_a_game_running_label.show()
     else:
         is_a_game_running_label.hide()
+
+func on_bonus_touched_ui(bonus_number: int, is_bonus_picked_up: bool = false) -> void:
+    bonus_label.text = " Bonus: %d" % bonus_number
+    if is_bonus_picked_up:
+        audio_bonus_picked_up.play()  # Play the bonus picked up sound
+    # Update the UI with the current bonus count.

@@ -4,6 +4,6 @@
 
 [resource]
 shader = ExtResource("1_23cpm")
-shader_parameter/speed = 1.2
+shader_parameter/speed = 1.0
 shader_parameter/tint = Vector4(1, 1, 0, 1)
 shader_parameter/span = 0.3
