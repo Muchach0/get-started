@@ -96,9 +96,13 @@ func remove_player(player_id) -> void:
     delete_player_node_on_server(player_id)  # Call the function to delete the player on the server
     if player_id in players:
         players.erase(player_id)  # Remove the player from the players dictionary
+    if len(players) == 0: # If no players are left, we reset the game state
+        reset_game_state_on_server()
+        return
     if all_players_reached_star(): # Checking if the game should finish
         print("All players reached the star, finishing the game.")
         finish_game.rpc(true) # Call finish_game with is_win set to true
+    
 
 @rpc("any_peer", "call_local", "reliable")
 func player_was_hit(player_name, number_of_life: int) -> void:
@@ -263,3 +267,13 @@ func show_display_server_busy_label(should_display_server_busy_label) -> void: #
 @rpc("any_peer", "reliable")
 func show_current_level_and_bullet_count(current_level_from_server, nb_bullets) -> void:
     EventBus.emit_signal("start_level", current_level_from_server, nb_bullets) # Emit a signal to notify the UI to update the current level and number of bullets
+
+
+func reset_game_state_on_server() -> void: # Called when the game is reset, e.g., when all players are disconnected or when a new game starts
+    print("game_logic.gd - reset_game_state_on_server() - Resetting game state")
+    current_level = 1
+    init_bullet_count = 0
+    is_a_game_with_bullets_currently_running = false  # Reset the game state
+    players.clear()  # Clear the players dictionary
+    # Reset the star visibility
+    star.visible = true
