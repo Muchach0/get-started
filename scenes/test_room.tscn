@@ -1,16 +1,17 @@
-[gd_scene load_steps=14 format=3 uid="uid://btfwk1j12fmv3"]
+[gd_scene load_steps=16 format=3 uid="uid://c5ymybfjm8kfm"]
 
-[ext_resource type="Script" uid="uid://drujhi3kyvi2u" path="res://scripts/game_logic.gd" id="1_3wjhk"]
-[ext_resource type="Script" uid="uid://cp1qex37r1rrc" path="res://scripts/ui.gd" id="2_ftf1t"]
-[ext_resource type="Texture2D" uid="uid://e7ev8a2nskv2" path="res://assets/background_space_wide_screen.png" id="4_3wjhk"]
-[ext_resource type="PackedScene" uid="uid://cgqr0bo81lrix" path="res://components/joystick/Joystick.tscn" id="4_plucx"]
-[ext_resource type="Theme" uid="uid://c6vho6rwvu82i" path="res://assets/font/my_theme.tres" id="5_r6qr8"]
-[ext_resource type="Material" uid="uid://5slcagwnqqij" path="res://shaders/Glowing.tres" id="7_m7xea"]
-[ext_resource type="Texture2D" uid="uid://ce3i324ntjxh3" path="res://assets/star_2.png" id="8_a54ir"]
-[ext_resource type="AudioStream" uid="uid://cv1200f5e67ib" path="res://assets/sounds/explosion.wav" id="9_tyrbv"]
-[ext_resource type="Script" uid="uid://d0ms3k0nv2mp5" path="res://scripts/NetworkManager.gd" id="10_3wjhk"]
-[ext_resource type="PackedScene" uid="uid://r4el6umoyi8v" path="res://prefab/bullets.tscn" id="10_ftf1t"]
-[ext_resource type="AudioStream" uid="uid://3i1neqbgutxm" path="res://assets/sounds/pickupCoin.wav" id="10_wl8ak"]
+[ext_resource type="Script" uid="uid://drujhi3kyvi2u" path="res://scripts/game_logic.gd" id="1_p0w5i"]
+[ext_resource type="Script" uid="uid://cp1qex37r1rrc" path="res://scripts/ui.gd" id="2_kobp4"]
+[ext_resource type="PackedScene" uid="uid://cgqr0bo81lrix" path="res://components/joystick/Joystick.tscn" id="3_w86v4"]
+[ext_resource type="Theme" uid="uid://c6vho6rwvu82i" path="res://assets/font/my_theme.tres" id="4_l3qxk"]
+[ext_resource type="Texture2D" uid="uid://e7ev8a2nskv2" path="res://assets/background_space_wide_screen.png" id="5_4bnm5"]
+[ext_resource type="Material" uid="uid://5slcagwnqqij" path="res://shaders/Glowing.tres" id="6_jcauo"]
+[ext_resource type="Texture2D" uid="uid://ce3i324ntjxh3" path="res://assets/star_2.png" id="7_fqsy6"]
+[ext_resource type="AudioStream" uid="uid://cv1200f5e67ib" path="res://assets/sounds/explosion.wav" id="8_4ixbf"]
+[ext_resource type="AudioStream" uid="uid://3i1neqbgutxm" path="res://assets/sounds/pickupCoin.wav" id="9_ltkbo"]
+[ext_resource type="Script" uid="uid://d0ms3k0nv2mp5" path="res://scripts/NetworkManager.gd" id="10_pjeai"]
+[ext_resource type="PackedScene" uid="uid://r4el6umoyi8v" path="res://prefab/bullets.tscn" id="11_vhqmy"]
+[ext_resource type="Texture2D" uid="uid://bkby2e0hkghxd" path="res://assets/placeholder.svg" id="12_w86v4"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_w2sp8"]
 radius = 40.9132
@@ -18,13 +19,16 @@ radius = 40.9132
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_3wjhk"]
 size = Vector2(1598, 159)
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_p0w5i"]
+radius = 20.6155
+
 [node name="Shower" type="Node2D"]
-script = ExtResource("1_3wjhk")
+script = ExtResource("1_p0w5i")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
-script = ExtResource("2_ftf1t")
+script = ExtResource("2_kobp4")
 
-[node name="Joystick" parent="CanvasLayer" instance=ExtResource("4_plucx")]
+[node name="Joystick" parent="CanvasLayer" instance=ExtResource("3_w86v4")]
 
 [node name="GameOverScreen" type="GridContainer" parent="CanvasLayer"]
 visible = false
@@ -59,7 +63,7 @@ grow_horizontal = 2
 grow_vertical = 0
 size_flags_horizontal = 0
 size_flags_vertical = 1
-theme = ExtResource("5_r6qr8")
+theme = ExtResource("4_l3qxk")
 theme_override_font_sizes/font_size = 256
 text = "GAME OVER"
 horizontal_alignment = 1
@@ -77,7 +81,7 @@ offset_right = 494.0
 offset_bottom = 321.0
 grow_horizontal = 2
 size_flags_horizontal = 4
-theme = ExtResource("5_r6qr8")
+theme = ExtResource("4_l3qxk")
 theme_override_font_sizes/font_size = 256
 text = "Restart"
 
@@ -90,7 +94,7 @@ offset_right = 352.5
 offset_bottom = 87.0
 grow_horizontal = 2
 size_flags_horizontal = 4
-theme = ExtResource("5_r6qr8")
+theme = ExtResource("4_l3qxk")
 text = "Level: 1 - Bullets: 0"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -109,7 +113,7 @@ offset_bottom = 43.5
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 4
-theme = ExtResource("5_r6qr8")
+theme = ExtResource("4_l3qxk")
 text = "SERVER UI"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -122,24 +126,39 @@ offset_left = -705.0
 offset_bottom = 87.0
 grow_horizontal = 0
 size_flags_horizontal = 4
-theme = ExtResource("5_r6qr8")
-text = "Player connected: 0 "
+theme = ExtResource("4_l3qxk")
+text = "Player connected: 0/12 "
 horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="TestRoomLabel" type="Label" parent="CanvasLayer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -1132.0
+offset_top = 201.0
+offset_right = -427.0
+offset_bottom = 288.0
+grow_horizontal = 0
+size_flags_horizontal = 4
+theme = ExtResource("4_l3qxk")
+text = "TEST ROOM"
+horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Space_background" type="Sprite2D" parent="."]
 z_index = -1
 position = Vector2(799.5, 450.5)
-texture = ExtResource("4_3wjhk")
+texture = ExtResource("5_4bnm5")
 
 [node name="Star" type="Area2D" parent="." groups=["star"]]
-position = Vector2(796, 109)
+position = Vector2(869, 637)
 scale = Vector2(0.855469, 0.855469)
 
 [node name="StarSprite" type="Sprite2D" parent="Star"]
-material = ExtResource("7_m7xea")
+material = ExtResource("6_jcauo")
 scale = Vector2(0.13, 0.13)
-texture = ExtResource("8_a54ir")
+texture = ExtResource("7_fqsy6")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Star"]
 shape = SubResource("CircleShape2D_w2sp8")
@@ -147,19 +166,12 @@ shape = SubResource("CircleShape2D_w2sp8")
 [node name="AudioManager" type="Node" parent="."]
 
 [node name="ExplosionAudioStreamPlayer" type="AudioStreamPlayer" parent="AudioManager"]
-stream = ExtResource("9_tyrbv")
+stream = ExtResource("8_4ixbf")
 
 [node name="WinAudioStreamPlayer" type="AudioStreamPlayer" parent="AudioManager"]
-stream = ExtResource("10_wl8ak")
+stream = ExtResource("9_ltkbo")
 
-[node name="NetworkManager" type="Node" parent="."]
-script = ExtResource("10_3wjhk")
-
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("uid://6o6eiydhbvdn")
-spawn_path = NodePath("..")
-
-[node name="Bullets" parent="." instance=ExtResource("10_ftf1t")]
+[node name="Bullets" parent="." instance=ExtResource("11_vhqmy")]
 
 [node name="SpawnPoints" type="Node2D" parent="."]
 
@@ -215,5 +227,24 @@ position = Vector2(3, -23)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="SafeZone/AreaSafeZone"]
 position = Vector2(795, 162.5)
 shape = SubResource("RectangleShape2D_3wjhk")
+
+[node name="MyBullet" type="Node2D" parent="."]
+position = Vector2(682, 694)
+
+[node name="CharacterBody2D" type="CharacterBody2D" parent="MyBullet"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MyBullet/CharacterBody2D"]
+shape = SubResource("CircleShape2D_p0w5i")
+
+[node name="Sprite2D" type="Sprite2D" parent="MyBullet"]
+scale = Vector2(0.24, 0.24)
+texture = ExtResource("12_w86v4")
+
+[node name="NetworkManager" type="Node" parent="."]
+script = ExtResource("10_pjeai")
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://6o6eiydhbvdn")
+spawn_path = NodePath("..")
 
 [connection signal="pressed" from="CanvasLayer/GameOverScreen/Control2/Button" to="." method="_on_button_restart_pressed"]

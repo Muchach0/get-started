@@ -32,19 +32,19 @@ func _ready() -> void:
     EventBus.connect("bullets_init_and_start", server_init_and_start)
     # init_game()
 
-func server_init_and_start(init_bullet_count) -> void:
+func server_init_and_start(current_level, nb_bullets) -> void:
     if !multiplayer.is_server():
         return   # Only the server should initialize and start the bullets.
-    print("bullets.gd - server_init_and_start () : creating %d bullets" % init_bullet_count)
+    print("bullets.gd - server_init_and_start () : creating %d bullets" % nb_bullets)
     bullets_rand_data = []
     
-    for bullet in init_bullet_count:
+    for bullet in nb_bullets:
         bullets_rand_data.append({
             "position": Vector2(randf_range(0, get_viewport_rect().size.x), randf_range(0, get_viewport_rect().size.y)),
             "speed": randf_range(SPEED_MIN, SPEED_MAX)
         })
     
-    init_game.rpc(bullets_rand_data) # The server send the data to the clients to initialize the game (with same start value). 
+    init_game.rpc(current_level, nb_bullets, bullets_rand_data) # The server send the data to the clients to initialize the game (with same start value). 
     # Note that  there is no syncinc of bullet position and speed after the game has started.
     # This is because the bullets are not supposed to be controlled by the player, so there is no need to synchronize their state after initialization.
     # This might an issue if the game is paused and resumed, as the bullets will not be synchronized with the server state.
@@ -52,8 +52,9 @@ func server_init_and_start(init_bullet_count) -> void:
 
 
 @rpc("any_peer", "reliable")
-func init_game(data_rand) -> void:
-    print("bullets.gd - initiating the game")
+func init_game(current_level, nb_bullets, data_rand) -> void:
+    print("bullets.gd - initiating the game level %d with %d bullets" % [current_level, nb_bullets])
+    EventBus.emit_signal("start_level", current_level, nb_bullets) # Emit a signal to notify the UI to update the number of bullets (locally)
     shape = PhysicsServer2D.circle_shape_create()
     # Set the collision shape's radius for each bullet in pixels.
     PhysicsServer2D.shape_set_data(shape, 8)

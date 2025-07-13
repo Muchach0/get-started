@@ -144,8 +144,8 @@ func restart_game() -> void:
     # Reset the game over screen
     game_over_screen.visible = false
 
-    # Reset the level label
-    level_label.text = "Level: " + str(current_level) + " - Bullets: " + str(init_bullet_count)
+    # Reset the level label - now handled by the ui.gd script
+    # level_label.text = "Level: " + str(current_level) + " - Bullets: " + str(init_bullet_count)
 
     if multiplayer.is_server():
         for player_id in players.keys():
@@ -153,7 +153,7 @@ func restart_game() -> void:
             respawn_player.rpc(player_id, players[player_id], players[player_id]["init_position"])  # Call respawn_player to respawn the player
             # EventBus.emit_signal("respawn_player", player_id, players[player_id], players[player_id]["init_position"]) # Emit a signal to notify to respawn the player
 
-        EventBus.emit_signal("bullets_init_and_start", init_bullet_count) # Emit a signal to spawn bullets
+        EventBus.emit_signal("bullets_init_and_start", current_level, init_bullet_count) # Emit a signal to spawn bullets
         
 
 
