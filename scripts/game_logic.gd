@@ -307,7 +307,7 @@ func server_handles_bonus_touched_by_player(bonus_node_name: String) -> void: # 
 func sync_bonus_count_on_peers(bonus_number_from_server: int, is_bonus_picked_up: bool) -> void: # Function called from server to all peers to synchronize the bonus count
     print("game_logic.gd - sync_bonus_count_on_peers() - Sync bonus count on peers: %d" % bonus_number_from_server)
     bonus_number = bonus_number_from_server
-    EventBus.emit_signal("bonus_touched_ui", bonus_number, is_bonus_picked_up) # Emit a signal to notify the UI that a bonus was touched - run on all peers except the server
+    EventBus.emit_signal("sync_bonus_count", bonus_number, is_bonus_picked_up) # Emit a signal to notify the UI that a bonus was touched - run on all peers except the server
 
 func reset_bonus() -> void: # This function is called to reset the bonus count and move the bonus node to a random position in the viewport
     print("game_logic.gd - reset_bonus() - Resetting bonus count and moving bonus node")
@@ -324,6 +324,6 @@ func server_move_bonus_in_random_viewport_position() -> void: # This function is
         print("game_logic.gd - move_bonus_in_random_viewport_position() - Bonus node not found.")
         return
     var viewport_size = get_viewport_rect().size
-    var random_position = Vector2(randf_range(0, viewport_size.x), randf_range(viewport_size.y / 2 - 80, viewport_size.y - 80)) # place the bonus in the lower half of the viewport
+    var random_position = Vector2(randf_range(0, viewport_size.x), randf_range(viewport_size.y / 2, viewport_size.y - 160)) # place the bonus in the lower half of the viewport
     bonus_node.position = random_position  # Move the bonus to a random position in the viewport
     print("game_logic.gd - move_bonus_in_random_viewport_position() - Bonus moved to: %s" % str(random_position))

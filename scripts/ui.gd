@@ -15,7 +15,7 @@ func _ready() -> void:
     EventBus.connect("remove_player", on_remove_player)
     EventBus.connect("start_level", on_start_level)
     EventBus.connect("is_server_running_a_busy_round", on_joining_server_running_a_busy_round)
-    EventBus.connect("bonus_touched_ui", on_bonus_touched_ui)
+    EventBus.connect("sync_bonus_count", on_sync_bonus_count)
 
 
 func on_player_added(_player_id, _player_info) -> void:
@@ -37,7 +37,7 @@ func on_joining_server_running_a_busy_round(should_display_label: bool) -> void:
     else:
         is_a_game_running_label.hide()
 
-func on_bonus_touched_ui(bonus_number: int, is_bonus_picked_up: bool = false) -> void:
+func on_sync_bonus_count(bonus_number: int, is_bonus_picked_up: bool = false) -> void:
     bonus_label.text = " Bonus: %d" % bonus_number
     if is_bonus_picked_up:
         audio_bonus_picked_up.play()  # Play the bonus picked up sound

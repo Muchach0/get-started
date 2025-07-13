@@ -27,16 +27,42 @@ var init_position = position
 var peer_id = 0
 var motion:= Vector2()
 
+var is_force_field_enabled: bool = false # used to enable/disable the force field effect
+@onready var force_field_area: Area2D = $ForceFieldArea
+@onready var force_field_timer: Timer = $ForceFieldArea/ForceFieldTimer
+var bonus_number: int = 0 # The number of bonuses picked up by the player
+
 @onready var sync = $MultiplayerSynchronizer
 
 func _ready() -> void:
     material.set_shader_parameter("enable_effect", false)
     print("player.gd - _ready() - id: " + str(peer_id) + " - is_multiplayer_authority: " + str(is_multiplayer_authority()))
-    
+    EventBus.connect("sync_bonus_count", on_sync_bonus_count)
     # EventBus.connect("player_respawned", _on_player_respawned)
     # The player follows the mouse cursor automatically, so there's no point
     # in displaying the mouse cursor.
     # Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+
+func on_sync_bonus_count(bonus_number_from_server: int, _is_bonus_picked_up: bool = false) -> void:
+    bonus_number = bonus_number_from_server
+
+func main_action_pressed() -> void:
+    # This function is called when the main action is pressed (e.g., spacebar).
+    # It can be used to trigger an action, such as shooting or interacting.
+    print("Main action pressed")
+    
+    if multiplayer != null and not is_multiplayer_authority():
+        print("Not the authority, cannot perform main action")
+        return
+
+    # TODO: CHECKING HERE IF WE ARE ALLOWED TO DO THAT - we should check if a bonus is available - ignoring for now
+    if bonus_number <= 0:
+        print("No bonus available, cannot perform main action")
+        return
+    activation_of_force_field.rpc(true)  # Call the function to activate the force field effect on all peers
+    force_field_timer.start()  # Start the force field timer to disable the effect after a certain time
+
+    # Add your custom logic for main action here, e.g., shoot, interact, etc.
 
 
 
@@ -48,6 +74,11 @@ func _physics_process(delta: float) -> void:
         var y_input = Input.get_axis("ui_up", "ui_down")
         motion = Vector2(x_input, y_input).normalized()
         synced_position = position
+
+        if Input.is_action_just_pressed("ui_accept"):
+            main_action_pressed()
+            # Add your custom logic for ui_accept here, e.g., interact, shoot, etc.
+
     else:
         position = synced_position
 
@@ -171,3 +202,32 @@ func reset_player(new_position: Vector2) -> void:
     $Sprite2D.visible = true
     $DetectionArea.monitoring = true
     material.set_shader_parameter("enable_effect", false)
+
+
+
+####################### FORCE FIELD SECTION #######################
+@rpc("any_peer", "call_local", "reliable")
+func activation_of_force_field(should_activate_force_field) -> void:
+    # This function is called to activate the force field effect.
+    if should_activate_force_field:
+        print("Activating force field")
+        is_force_field_enabled = true
+        force_field_area.visible = true
+        force_field_area.monitorable = true
+        force_field_area.monitoring = true
+
+    else:
+        print("Deactivating force field")
+        is_force_field_enabled = false
+        force_field_area.visible = false
+        force_field_area.monitorable = false
+        force_field_area.monitoring = false
+    # material.set_shader_parameter("enable_effect", true)  # Enable the force field effect in the shader
+    # sprite.frame = 1  # Change the sprite frame to indicate the force field is
+
+
+func _on_force_field_timer_timeout() -> void: # When the timer of force field is over, we disable the force field effect on all peers from the authority.
+    if multiplayer != null and not is_multiplayer_authority():
+        print("Not the authority, cannot perform main action")
+        return
+    activation_of_force_field.rpc(false)
