@@ -99,25 +99,6 @@ text = "Level: 1 - Bullets: 0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="IsServerLabel" type="Label" parent="CanvasLayer"]
-visible = false
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -352.5
-offset_top = -43.5
-offset_right = 352.5
-offset_bottom = 43.5
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 4
-theme = ExtResource("4_l3qxk")
-text = "SERVER UI"
-horizontal_alignment = 1
-vertical_alignment = 1
-
 [node name="NetworkLabel" type="Label" parent="CanvasLayer"]
 anchors_preset = 1
 anchor_left = 1.0
@@ -127,7 +108,7 @@ offset_bottom = 87.0
 grow_horizontal = 0
 size_flags_horizontal = 4
 theme = ExtResource("4_l3qxk")
-text = "Player connected: 0/12 "
+text = "Player connected: 0 "
 horizontal_alignment = 2
 vertical_alignment = 1
 
@@ -143,6 +124,44 @@ grow_horizontal = 0
 size_flags_horizontal = 4
 theme = ExtResource("4_l3qxk")
 text = "TEST ROOM"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="IsAGameRunningLabel" type="Label" parent="CanvasLayer"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -352.5
+offset_top = -43.5
+offset_right = 352.5
+offset_bottom = 43.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+theme = ExtResource("4_l3qxk")
+text = "A round is running, wait for the end to get started again ..."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="IsServerLabel" type="Label" parent="CanvasLayer"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -352.0
+offset_top = -148.0
+offset_right = 353.0
+offset_bottom = -61.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+theme = ExtResource("4_l3qxk")
+text = "SERVER UI"
 horizontal_alignment = 1
 vertical_alignment = 1
 

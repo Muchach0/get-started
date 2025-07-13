@@ -14,6 +14,9 @@ extends Node2D
 const INCREMENT_BULLET_COUNT = 50
 var current_level := 1
 
+# bool to store if a game with bullets is currently running
+# We hide the player connecting in case a round is already running, necessary as the bullets are instantiated locally on round start.
+var is_a_game_with_bullets_currently_running: bool = false 
 
 
 # Audio part
@@ -50,12 +53,23 @@ func add_player(player_id, player_info) -> void:
 func set_player_node_name_and_init_position(player_id, player_node_name, init_position) -> void:
     if !multiplayer.is_server():
         return
-    if player_id in players:
-        players[player_id]["player_node_name"] = player_node_name  # Store the player node name
-        players[player_id]["init_position"] = init_position  # Store the initial position of the player
-        print("game_logic.gd - set_player_node_name() - Player %d node name set to %s" % [player_id, player_node_name])
-    else:
+    if player_id not in players:
         print("game_logic.gd - set_player_node_name() - Player ID %d not found in players dictionary." % player_id)
+        return
+    # Setting the player node name and initial position in the players dictionary
+    players[player_id]["player_node_name"] = player_node_name  # Store the player node name
+    players[player_id]["init_position"] = init_position  # Store the initial position of the player
+    print("game_logic.gd - set_player_node_name() - Player %d node name set to %s" % [player_id, player_node_name])
+        
+    # if a player join during a game with bullets, we hide the player, set the player has reach_star to true
+    if not is_a_game_with_bullets_currently_running:
+        return
+    players[player_id]["reach_star"] = true
+    hide_player_from_server_to_all_peers.rpc(player_node_name) # Hide the player from all peers
+    show_display_server_busy_label.rpc_id(player_id, is_a_game_with_bullets_currently_running)  # Notify the server that a player has joined a currently running game with bullets
+    show_current_level_and_bullet_count.rpc_id(player_id, current_level, init_bullet_count)  # Show the current level and bullet count on the UI on the client when joining a game
+
+
 
 # Called on signal _on_player_disconnected
 func delete_player_node_on_server(player_id) -> void:
@@ -141,13 +155,16 @@ func restart_game() -> void:
     # Reset the star visibility
     star.visible = true
 
-    # Reset the game over screen
+    # Reset the game over screen and the server busy label
     game_over_screen.visible = false
+    show_display_server_busy_label(false)  # Hide the server busy label
 
     # Reset the level label - now handled by the ui.gd script
     # level_label.text = "Level: " + str(current_level) + " - Bullets: " + str(init_bullet_count)
 
     if multiplayer.is_server():
+        is_a_game_with_bullets_currently_running = true  # Starting a level with bullets, so setting the flag to true
+        
         for player_id in players.keys():
             # delete_player_node_on_server(player_id) # Delete the player node on the server if it still exists
             respawn_player.rpc(player_id, players[player_id], players[player_id]["init_position"])  # Call respawn_player to respawn the player
@@ -237,3 +254,12 @@ func respawn_player(player_id, player_info, init_position) -> void:
             print("game_logic.gd - respawn_player() - Player node %s not found." % player_node_name)
     else:
         print("game_logic.gd - respawn_player() - Player node name not found for ID %d." % player_id)
+
+
+@rpc("any_peer", "reliable")
+func show_display_server_busy_label(should_display_server_busy_label) -> void: # called from server to connecting peer to indicate that a game with bullets is currently running
+    EventBus.emit_signal("is_server_running_a_busy_round", should_display_server_busy_label) # Emit a signal to notify the UI that a game with bullets is currently running
+
+@rpc("any_peer", "reliable")
+func show_current_level_and_bullet_count(current_level_from_server, nb_bullets) -> void:
+    EventBus.emit_signal("start_level", current_level_from_server, nb_bullets) # Emit a signal to notify the UI to update the current level and number of bullets

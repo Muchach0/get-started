@@ -11,3 +11,5 @@ signal set_player_node_name_and_init_position # Signal to set the player node na
 
 signal bullets_init_and_start # Signal sent on server to spawn bullets (the server is running the randomization and send to clients)
 signal start_level # Signal to update the UI with the current level and number of bullets (sent from server)
+
+signal is_server_running_a_busy_round # Signal to indicate if a game is currently running - UI will display the label accordingly
