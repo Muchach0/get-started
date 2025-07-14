@@ -37,6 +37,7 @@ func _ready() -> void:
     EventBus.connect("remove_player", remove_player)
     EventBus.connect("set_player_node_name_and_init_position", set_player_node_name_and_init_position)
     EventBus.connect("bonus_touched", on_bonus_touched_by_player)
+    EventBus.connect("bonus_used", server_handles_bonus_used_by_player)
 
     if multiplayer.is_server():
         server_label.visible = true
@@ -302,6 +303,13 @@ func server_handles_bonus_touched_by_player(bonus_node_name: String) -> void: # 
     bonus_node.position = Vector2(-1000, -1000)  # Move the bonus node out of the viewport to make it disappear
     bonus_number += 1  # Increment the bonus count
     sync_bonus_count_on_peers.rpc(bonus_number, true)  # Call the function to refresh the bonus count on all peers
+
+func server_handles_bonus_used_by_player() -> void: # The server handles the bonus used by the player (make it disapear + store the bonus count)
+    if not multiplayer.is_server():
+        return  # Only the server should handle the bonus touch
+    print("game_logic.gd - server_handles_bonus_used_by_player() - Bonus used by player")
+    bonus_number -= 1  # Decrement the bonus count
+    sync_bonus_count_on_peers.rpc(bonus_number, false)  # Call the function to refresh the bonus count on all peers
 
 @rpc("any_peer", "call_local", "reliable")
 func sync_bonus_count_on_peers(bonus_number_from_server: int, is_bonus_picked_up: bool) -> void: # Function called from server to all peers to synchronize the bonus count

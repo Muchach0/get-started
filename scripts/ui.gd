@@ -7,6 +7,7 @@ extends CanvasLayer
 
 # Audio part
 @onready var audio_bonus_picked_up: AudioStreamPlayer = $"../AudioManager/BonusPickUpAudioStreamPlayer"
+@onready var audio_bonus_used: AudioStreamPlayer = $"../AudioManager/BonusUsedAudioStreamPlayer"
 
 var number_of_players: int = 0
 
@@ -16,6 +17,7 @@ func _ready() -> void:
     EventBus.connect("start_level", on_start_level)
     EventBus.connect("is_server_running_a_busy_round", on_joining_server_running_a_busy_round)
     EventBus.connect("sync_bonus_count", on_sync_bonus_count)
+    EventBus.connect("bonus_used", on_bonus_used)
 
 
 func on_player_added(_player_id, _player_info) -> void:
@@ -42,3 +44,6 @@ func on_sync_bonus_count(bonus_number: int, is_bonus_picked_up: bool = false) ->
     if is_bonus_picked_up:
         audio_bonus_picked_up.play()  # Play the bonus picked up sound
     # Update the UI with the current bonus count.
+
+func on_bonus_used() -> void:
+    audio_bonus_used.play()  # Play the bonus used sound

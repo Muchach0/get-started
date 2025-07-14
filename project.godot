@@ -25,6 +25,16 @@ window/size/viewport_width=1600
 window/size/viewport_height=900
 window/stretch/mode="viewport"
 
+[file_customization]
+
+folder_colors={
+"res://scripts/": "teal"
+}
+
+[global_group]
+
+safeZone=""
+
 [input]
 
 ui_left={

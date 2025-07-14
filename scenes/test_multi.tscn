@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://btfwk1j12fmv3"]
+[gd_scene load_steps=19 format=3 uid="uid://btfwk1j12fmv3"]
 
 [ext_resource type="Script" uid="uid://drujhi3kyvi2u" path="res://scripts/game_logic.gd" id="1_3wjhk"]
 [ext_resource type="Script" uid="uid://cp1qex37r1rrc" path="res://scripts/ui.gd" id="2_ftf1t"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://r4el6umoyi8v" path="res://prefab/bullets.tscn" id="10_ftf1t"]
 [ext_resource type="AudioStream" uid="uid://cejnvkaruohkw" path="res://assets/sounds/bonusPickUp.wav" id="10_plucx"]
 [ext_resource type="AudioStream" uid="uid://3i1neqbgutxm" path="res://assets/sounds/pickupCoin.wav" id="10_wl8ak"]
+[ext_resource type="AudioStream" uid="uid://b34dfti6a06rt" path="res://assets/sounds/bonusUsed.wav" id="11_r6qr8"]
 [ext_resource type="Texture2D" uid="uid://2vbmwrfbswhb" path="res://assets/bonus.png" id="12_68i5b"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_w2sp8"]
@@ -192,6 +193,9 @@ stream = ExtResource("10_wl8ak")
 
 [node name="BonusPickUpAudioStreamPlayer" type="AudioStreamPlayer" parent="AudioManager"]
 stream = ExtResource("10_plucx")
+
+[node name="BonusUsedAudioStreamPlayer" type="AudioStreamPlayer" parent="AudioManager"]
+stream = ExtResource("11_r6qr8")
 
 [node name="NetworkManager" type="Node" parent="."]
 script = ExtResource("10_3wjhk")

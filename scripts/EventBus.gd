@@ -17,4 +17,5 @@ signal is_server_running_a_busy_round # Signal to indicate if a game is currentl
 
 # Signal linked to bonus
 signal bonus_touched # Signal to notify the game logic that a player touched a bonus
+signal bonus_used # Signal to notify the game logic that a player used a bonus
 signal sync_bonus_count # Signal to notify the UI that a player touched a bonus

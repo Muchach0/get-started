@@ -78,8 +78,10 @@ replication_config = SubResource("SceneReplicationConfig_0jxdt")
 position = Vector2(-4, 0)
 shape = SubResource("CapsuleShape2D_0jxdt")
 
-[node name="ForceFieldArea" type="Area2D" parent="."]
+[node name="ForceFieldArea" type="Area2D" parent="." groups=["safeZone"]]
 visible = false
+monitoring = false
+monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ForceFieldArea"]
 shape = SubResource("CircleShape2D_wq5sj")

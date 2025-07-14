@@ -139,7 +139,7 @@ func _on_body_shape_exited(_body_id: RID, _body: Node2D, _body_shape_index: int,
 
 
 func _on_area_entered(area: Area2D) -> void:
-    # print("The star is touched 2 - area group: ", area.get_groups())
+    print("Player body is touched - area group: ", area.get_groups())
     if "star" in area.get_groups():
         if multiplayer == null or is_multiplayer_authority(): # Only the authority should emit the signal.
             print("The star is touched 3")
@@ -215,6 +215,8 @@ func activation_of_force_field(should_activate_force_field) -> void:
         force_field_area.visible = true
         force_field_area.monitorable = true
         force_field_area.monitoring = true
+        EventBus.emit_signal("bonus_used")  # Notify the game logic that a bonus was used
+        
 
     else:
         print("Deactivating force field")
