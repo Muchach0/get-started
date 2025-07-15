@@ -1,10 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://cgqr0bo81lrix"]
+[gd_scene load_steps=5 format=3 uid="uid://cgqr0bo81lrix"]
 
 [ext_resource type="Script" uid="uid://g85kccb56rkg" path="res://components/joystick/virtual_joystick.gd" id="1_ph4ed"]
 [ext_resource type="Texture2D" uid="uid://dv2m66sjjxnfx" path="res://components/joystick/textures/joystick_tip_arrows.png" id="2_tkw83"]
 [ext_resource type="Texture2D" uid="uid://2asic0w61twe" path="res://components/joystick/textures/joystick_tip.png" id="3_7aok0"]
 [ext_resource type="Texture2D" uid="uid://jli5mr62ypwe" path="res://components/joystick/textures/joystick_base_outline.png" id="4_2w6n2"]
-[ext_resource type="Script" uid="uid://ct2w6nsedmgkm" path="res://components/joystick/label.gd" id="5_2w6n2"]
 
 [node name="Joystick" type="Control"]
 layout_mode = 3
@@ -99,10 +98,10 @@ texture_pressed = ExtResource("4_2w6n2")
 action = "ui_accept"
 
 [node name="Label" type="Label" parent="Control2"]
+visible = false
 layout_mode = 0
 offset_left = -137.0
 offset_top = 64.0
 offset_right = 75.0
 offset_bottom = 225.0
 autowrap_mode = 2
-script = ExtResource("5_2w6n2")
