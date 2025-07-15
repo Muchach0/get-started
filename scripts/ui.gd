@@ -40,7 +40,7 @@ func on_joining_server_running_a_busy_round(should_display_label: bool) -> void:
         is_a_game_running_label.hide()
 
 func on_sync_bonus_count(bonus_number: int, is_bonus_picked_up: bool = false) -> void:
-    bonus_label.text = " Bonus: %d" % bonus_number
+    bonus_label.text = " Shield: %d" % bonus_number
     if is_bonus_picked_up:
         audio_bonus_picked_up.play()  # Play the bonus picked up sound
     # Update the UI with the current bonus count.

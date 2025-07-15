@@ -191,12 +191,12 @@ func finish_game(is_win:= true) -> void:
         # Play win sound
         audio_win.play()
         star.visible = false
-        game_over_screen.get_node("Control/Label").text = "You Win!"
+        game_over_screen.get_node("Control/Label").text = "Victory!"
         game_over_screen.get_node("Control2/Button").text = "Next Level"
         init_bullet_count += INCREMENT_BULLET_COUNT
         current_level += 1
     else :
-        game_over_screen.get_node("Control/Label").text = "Game Over!"
+        game_over_screen.get_node("Control/Label").text = "Round Over!"
         game_over_screen.get_node("Control2/Button").text = "Restart"
     game_over_screen.visible = true
 

@@ -72,7 +72,7 @@ size_flags_horizontal = 0
 size_flags_vertical = 1
 theme = ExtResource("5_r6qr8")
 theme_override_font_sizes/font_size = 256
-text = "GAME OVER"
+text = "ROUND OVER"
 horizontal_alignment = 1
 
 [node name="Control2" type="Control" parent="CanvasLayer/GameOverScreen"]
@@ -163,7 +163,7 @@ offset_bottom = 87.0
 rotation = -0.00440829
 size_flags_horizontal = 4
 theme = ExtResource("5_r6qr8")
-text = " Bonus: 0 "
+text = " Shield: 0 "
 vertical_alignment = 1
 
 [node name="Space_background" type="Sprite2D" parent="."]
